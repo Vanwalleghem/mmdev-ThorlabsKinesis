@@ -72,6 +72,9 @@
     <ClInclude Include="DLLAccess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BSC202_FW.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceEnumeration.cpp">
