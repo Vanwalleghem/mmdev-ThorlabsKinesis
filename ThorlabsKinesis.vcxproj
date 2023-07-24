@@ -22,7 +22,6 @@
     <ClInclude Include="BenchtopBrushless.h" />
     <ClInclude Include="BenchtopDCServo.h" />
     <ClInclude Include="BenchtopStepper.h" />
-    <ClInclude Include="BSC202_FW.h" />
     <ClInclude Include="Connections.h" />
     <ClInclude Include="DeviceEnumeration.h" />
     <ClInclude Include="DeviceInstantiation.h" />
