@@ -123,6 +123,10 @@ SingleAxisStage::SingleAxisStage(std::string const& name,
     }
     CreateFloatProperty(PROP_DeviceUnitsPerRevolution,
         defaultDeviceUnitsPerRevolution, false, nullptr, true);
+
+    // It would be here to include the createProperty to expose stuff
+    CPropertyAction* pAct = new CPropertyAction(this, &SingleAxisStage::OnPositionChange);
+    CreateFloatProperty("PositionUM", 0.0, false, pAct, false);
 }
 
 
@@ -282,6 +286,26 @@ SingleAxisStage::SetPositionUm(double pos) {
     double dSteps = std::round(pos * deviceUnitsPerUm_);
     int steps = clamp_int(dSteps);
     return SetPositionSteps(steps);
+}
+
+int SingleAxisStage::OnPositionChange(MM::PropertyBase* pProp, MM::ActionType eAct)
+{
+    if (eAct == MM::BeforeGet)
+    {
+        printf("Getting position of Wheel device\n");
+        double pos = 0.0;
+        GetPositionUm(pos);
+        pProp->Set(pos);        
+    }
+    else if (eAct == MM::AfterSet)
+    {
+        double pos = 0.0;
+        pProp->Get(pos);
+        printf("Moving to position %lf\n", pos);
+        SetPositionUm(pos);
+    }
+
+    return DEVICE_OK;
 }
 
 

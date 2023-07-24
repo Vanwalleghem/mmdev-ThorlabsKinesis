@@ -86,4 +86,5 @@ public:
 private:
     std::unique_ptr<MotorDrive> Connect() const;
     std::string MakeName(MotorDrive* motorDrive) const;
+    int OnPositionChange(MM::PropertyBase* pProp, MM::ActionType eAct);
 };
