@@ -54,8 +54,8 @@ class SingleAxisStage final : public CStageBase<SingleAxisStage> {
     // Set during Initialize():
     std::unique_ptr<MotorDrive> motorDrive_;
     bool isRotational_{ false };
-    double deviceUnitsPerUm_{ 1.0 }; // Per degree if rotational
-    int pollingIntervalMs_{ 200 };
+    double deviceUnitsPerUm_{ 100.0 }; // Per degree if rotational
+    int pollingIntervalMs_{ 50 };
     bool didEnable_{ false };
 
     // Dynamic state:
@@ -89,4 +89,6 @@ public:
 private:
     std::unique_ptr<MotorDrive> Connect() const;
     std::string MakeName(MotorDrive* motorDrive) const;    
+    bool initialized_;
+    bool homed_;
 };

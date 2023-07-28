@@ -75,6 +75,8 @@ SingleAxisStage::SingleAxisStage(std::string const& name,
     serialNo_{ serialNo },
     channel_{ channel },
     givenName_{ name },
+    homed_(false),
+    initialized_(false),
     retainedConnection_{ connection }
 {
     for (auto const& item : KinesisErrorCodes()) {
@@ -105,7 +107,7 @@ SingleAxisStage::SingleAxisStage(std::string const& name,
     // The defaults below are set to small values to prevent accidents. Known
     // defaults (taken from the Kinesis app) are given for integrated devices.
 
-    double defaultDeviceUnitsPerMm = 1.0;
+    double defaultDeviceUnitsPerMm = 1000.0;
     switch (TypeIDOfSerialNo(serialNo)) {
     case TypeIDLabJack050: defaultDeviceUnitsPerMm = 1228800.0; break;
     case TypeIDLabJack490: defaultDeviceUnitsPerMm = 134737.0; break;
@@ -132,6 +134,9 @@ SingleAxisStage::~SingleAxisStage() = default;
 
 int
 SingleAxisStage::Initialize() {
+    if (initialized_)
+        return DEVICE_OK;
+
     auto motorDrive = Connect();
     if (!motorDrive) // Shouldn't happen
         return DEVICE_ERR;
@@ -141,12 +146,12 @@ SingleAxisStage::Initialize() {
     motorDrive_ = std::move(motorDrive);
 
     short err;
-
+    /*
     // For what it's worth (doesn't seem to change anything)
     err = motorDrive_->RequestSettings();
     if (err)
         return ERR_OFFSET + err;
-
+    */
     char stageType[MM::MaxStrLength];
     GetProperty(PROP_StageType, stageType);
     isRotational_ = stageType != std::string{ PROPVAL_StageTypeLinear };
@@ -197,6 +202,8 @@ SingleAxisStage::Initialize() {
     int ret = CreateFloatProperty("Position Degrees", 0.0, false, pAct, false);
     if (ret != DEVICE_OK)
         return ret;
+
+    initialized_ = true;
 
     return DEVICE_OK;
 }
@@ -296,13 +303,13 @@ int SingleAxisStage::OnPositionChange(MM::PropertyBase* pProp, MM::ActionType eA
     if (eAct == MM::BeforeGet)
     {
         printf("Getting position of Wheel device\n");
-        double pos = 0.0;
+        double pos;
         GetPositionUm(pos);
         pProp->Set(pos);        
     }
     else if (eAct == MM::AfterSet)
     {
-        double pos = 0.0;
+        double pos;
         pProp->Get(pos);
         printf("Moving to position %lf\n", pos);
         SetPositionUm(pos);
@@ -339,10 +346,16 @@ int
 SingleAxisStage::Home() {
     if (!motorDrive_->CanHome())
         return DEVICE_UNSUPPORTED_COMMAND;
+    int ret = DEVICE_OK;
+
+    if (homed_)
+        return ret;
 
     short err = motorDrive_->Home();
     if (err)
         return ERR_OFFSET + err;
+    else
+        homed_ = true;
 
     lastMovementStart_ = GetCurrentMMTime();
 
