@@ -123,10 +123,7 @@ SingleAxisStage::SingleAxisStage(std::string const& name,
     }
     CreateFloatProperty(PROP_DeviceUnitsPerRevolution,
         defaultDeviceUnitsPerRevolution, false, nullptr, true);
-
-    // It would be here to include the createProperty to expose stuff
-    CPropertyAction* pAct = new CPropertyAction(this, &SingleAxisStage::OnPositionChange);
-    CreateFloatProperty("PositionUM", 0.0, false, pAct, false);
+  
 }
 
 
@@ -194,6 +191,12 @@ SingleAxisStage::Initialize() {
             return ERR_OFFSET + err;
         didEnable_ = true;
     }
+
+    // It would be here to include the createProperty to expose stuff
+    CPropertyAction* pAct = new CPropertyAction(this, &SingleAxisStage::OnPositionChange);
+    int ret = CreateFloatProperty("Position Degrees", 0.0, false, pAct, false);
+    if (ret != DEVICE_OK)
+        return ret;
 
     return DEVICE_OK;
 }

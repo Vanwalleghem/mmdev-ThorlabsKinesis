@@ -66,7 +66,7 @@ public:
         short channel, std::shared_ptr<KinesisDeviceConnection> connection);
     ~SingleAxisStage() override;
 
-    int Initialize() override;
+    int Initialize() override;    
     int Shutdown() override;
 
     void GetName(char* name) const override;
@@ -83,8 +83,10 @@ public:
     bool IsContinuousFocusDrive() const override { return false; }
     int IsStageSequenceable(bool& f) const override { f = false; return DEVICE_OK; }
 
+    //Action interface
+    int OnPositionChange(MM::PropertyBase* pProp, MM::ActionType eAct);
+
 private:
     std::unique_ptr<MotorDrive> Connect() const;
-    std::string MakeName(MotorDrive* motorDrive) const;
-    int OnPositionChange(MM::PropertyBase* pProp, MM::ActionType eAct);
+    std::string MakeName(MotorDrive* motorDrive) const;    
 };
